@@ -16,16 +16,49 @@ export default function Profile() {
       router.push("/signin");
     } else {
       const userData = JSON.parse(currentUser);
-      setUser(userData);
-      setEditedUser(userData);
+      // Fetch fresh data from database
+      fetch(`/api/auth/profile?id=${userData.id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.user) {
+            setUser(data.user);
+            setEditedUser(data.user);
+            // Update localStorage with fresh data
+            localStorage.setItem("currentUser", JSON.stringify(data.user));
+          }
+        })
+        .catch(error => {
+          console.error("Failed to fetch user profile:", error);
+          // Fallback to localStorage data
+          setUser(userData);
+          setEditedUser(userData);
+        });
     }
   }, [router]);
 
-  const handleSave = () => {
-    // In a real app, you'd make an API call to update the user
-    localStorage.setItem("currentUser", JSON.stringify(editedUser));
-    setUser(editedUser);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      const response = await fetch("/api/auth/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editedUser),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data.user);
+        localStorage.setItem("currentUser", JSON.stringify(data.user));
+        setIsEditing(false);
+      } else {
+        alert("Failed to save profile: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Save error:", error);
+      alert("Failed to save profile. Please try again.");
+    }
   };
 
   const handleCancel = () => {

@@ -49,7 +49,10 @@ export async function POST(request: NextRequest) {
         isOnboarded: user.isOnboarded,
         age: user.age,
         gender: user.gender,
-        stylePreference: user.stylePreference,
+        stylePreferences: user.stylePreferences,
+        weight: user.weight,
+        height: user.height,
+        bodyType: user.bodyType,
         location: user.location,
       },
     });

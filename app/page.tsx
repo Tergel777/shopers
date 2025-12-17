@@ -19,7 +19,22 @@ export default function Home() {
     if (!currentUser) {
       router.push("/signin");
     } else {
-      setUser(JSON.parse(currentUser));
+      const userData = JSON.parse(currentUser);
+      // Fetch fresh data from database
+      fetch(`/api/auth/profile?id=${userData.id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.user) {
+            setUser(data.user);
+            // Update localStorage with fresh data
+            localStorage.setItem("currentUser", JSON.stringify(data.user));
+          }
+        })
+        .catch(error => {
+          console.error("Failed to fetch user profile:", error);
+          // Fallback to localStorage data
+          setUser(userData);
+        });
     }
   }, [router]);
 
@@ -196,11 +211,25 @@ export default function Home() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-700">Style:</span>
-                      <span className="font-semibold text-amber-900 capitalize">{user.stylePreference || "Not set"}</span>
+                      <span className="font-semibold text-amber-900 capitalize">
+                        {(user.stylePreferences || []).length > 0 ? user.stylePreferences.join(", ") : "Not set"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-700">Location:</span>
                       <span className="font-semibold text-amber-900">{user.location || "Not set"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">Body Type:</span>
+                      <span className="font-semibold text-amber-900 capitalize">{user.bodyType || "Not set"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">Height:</span>
+                      <span className="font-semibold text-amber-900">{user.height ? `${user.height} cm` : "Not set"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">Weight:</span>
+                      <span className="font-semibold text-amber-900">{user.weight ? `${user.weight} kg` : "Not set"}</span>
                     </div>
                   </div>
                 </div>
@@ -216,9 +245,12 @@ export default function Home() {
                       if (user.name) completed++;
                       if (user.age) completed++;
                       if (user.gender) completed++;
-                      if (user.stylePreference) completed++;
+                      if ((user.stylePreferences || []).length > 0) completed++;
                       if (user.location) completed++;
-                      return Math.round((completed / 6) * 100);
+                      if (user.weight) completed++;
+                      if (user.height) completed++;
+                      if (user.bodyType) completed++;
+                      return Math.round((completed / 9) * 100);
                     })()}%
                   </span>
                 </div>
@@ -231,9 +263,12 @@ export default function Home() {
                         if (user.name) completed++;
                         if (user.age) completed++;
                         if (user.gender) completed++;
-                        if (user.stylePreference) completed++;
+                        if ((user.stylePreferences || []).length > 0) completed++;
                         if (user.location) completed++;
-                        return (completed / 6) * 100;
+                        if (user.weight) completed++;
+                        if (user.height) completed++;
+                        if (user.bodyType) completed++;
+                        return (completed / 9) * 100;
                       })()}%`
                     }}
                   />

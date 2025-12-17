@@ -525,7 +525,10 @@ export const UserScalarFieldEnum = {
   isOnboarded: 'isOnboarded',
   age: 'age',
   gender: 'gender',
-  stylePreference: 'stylePreference',
+  stylePreferences: 'stylePreferences',
+  weight: 'weight',
+  height: 'height',
+  bodyType: 'bodyType',
   location: 'location',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

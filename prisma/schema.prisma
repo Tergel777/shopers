@@ -21,7 +21,10 @@ model User {
   isOnboarded      Boolean  @default(false)
   age              Int?
   gender           String?
-  stylePreference  String?
+  stylePreferences String[]
+  weight           Int?
+  height           Int?
+  bodyType         String?
   location         String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

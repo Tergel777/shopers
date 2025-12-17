@@ -28,10 +28,14 @@ export type AggregateUser = {
 
 export type UserAvgAggregateOutputType = {
   age: number | null
+  weight: number | null
+  height: number | null
 }
 
 export type UserSumAggregateOutputType = {
   age: number | null
+  weight: number | null
+  height: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -42,7 +46,9 @@ export type UserMinAggregateOutputType = {
   isOnboarded: boolean | null
   age: number | null
   gender: string | null
-  stylePreference: string | null
+  weight: number | null
+  height: number | null
+  bodyType: string | null
   location: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -56,7 +62,9 @@ export type UserMaxAggregateOutputType = {
   isOnboarded: boolean | null
   age: number | null
   gender: string | null
-  stylePreference: string | null
+  weight: number | null
+  height: number | null
+  bodyType: string | null
   location: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -70,7 +78,10 @@ export type UserCountAggregateOutputType = {
   isOnboarded: number
   age: number
   gender: number
-  stylePreference: number
+  stylePreferences: number
+  weight: number
+  height: number
+  bodyType: number
   location: number
   createdAt: number
   updatedAt: number
@@ -80,10 +91,14 @@ export type UserCountAggregateOutputType = {
 
 export type UserAvgAggregateInputType = {
   age?: true
+  weight?: true
+  height?: true
 }
 
 export type UserSumAggregateInputType = {
   age?: true
+  weight?: true
+  height?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -94,7 +109,9 @@ export type UserMinAggregateInputType = {
   isOnboarded?: true
   age?: true
   gender?: true
-  stylePreference?: true
+  weight?: true
+  height?: true
+  bodyType?: true
   location?: true
   createdAt?: true
   updatedAt?: true
@@ -108,7 +125,9 @@ export type UserMaxAggregateInputType = {
   isOnboarded?: true
   age?: true
   gender?: true
-  stylePreference?: true
+  weight?: true
+  height?: true
+  bodyType?: true
   location?: true
   createdAt?: true
   updatedAt?: true
@@ -122,7 +141,10 @@ export type UserCountAggregateInputType = {
   isOnboarded?: true
   age?: true
   gender?: true
-  stylePreference?: true
+  stylePreferences?: true
+  weight?: true
+  height?: true
+  bodyType?: true
   location?: true
   createdAt?: true
   updatedAt?: true
@@ -223,7 +245,10 @@ export type UserGroupByOutputType = {
   isOnboarded: boolean
   age: number | null
   gender: string | null
-  stylePreference: string | null
+  stylePreferences: string[]
+  weight: number | null
+  height: number | null
+  bodyType: string | null
   location: string | null
   createdAt: Date
   updatedAt: Date
@@ -260,7 +285,10 @@ export type UserWhereInput = {
   isOnboarded?: Prisma.BoolFilter<"User"> | boolean
   age?: Prisma.IntNullableFilter<"User"> | number | null
   gender?: Prisma.StringNullableFilter<"User"> | string | null
-  stylePreference?: Prisma.StringNullableFilter<"User"> | string | null
+  stylePreferences?: Prisma.StringNullableListFilter<"User">
+  weight?: Prisma.IntNullableFilter<"User"> | number | null
+  height?: Prisma.IntNullableFilter<"User"> | number | null
+  bodyType?: Prisma.StringNullableFilter<"User"> | string | null
   location?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -274,7 +302,10 @@ export type UserOrderByWithRelationInput = {
   isOnboarded?: Prisma.SortOrder
   age?: Prisma.SortOrderInput | Prisma.SortOrder
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
-  stylePreference?: Prisma.SortOrderInput | Prisma.SortOrder
+  stylePreferences?: Prisma.SortOrder
+  weight?: Prisma.SortOrderInput | Prisma.SortOrder
+  height?: Prisma.SortOrderInput | Prisma.SortOrder
+  bodyType?: Prisma.SortOrderInput | Prisma.SortOrder
   location?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -291,7 +322,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   isOnboarded?: Prisma.BoolFilter<"User"> | boolean
   age?: Prisma.IntNullableFilter<"User"> | number | null
   gender?: Prisma.StringNullableFilter<"User"> | string | null
-  stylePreference?: Prisma.StringNullableFilter<"User"> | string | null
+  stylePreferences?: Prisma.StringNullableListFilter<"User">
+  weight?: Prisma.IntNullableFilter<"User"> | number | null
+  height?: Prisma.IntNullableFilter<"User"> | number | null
+  bodyType?: Prisma.StringNullableFilter<"User"> | string | null
   location?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -305,7 +339,10 @@ export type UserOrderByWithAggregationInput = {
   isOnboarded?: Prisma.SortOrder
   age?: Prisma.SortOrderInput | Prisma.SortOrder
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
-  stylePreference?: Prisma.SortOrderInput | Prisma.SortOrder
+  stylePreferences?: Prisma.SortOrder
+  weight?: Prisma.SortOrderInput | Prisma.SortOrder
+  height?: Prisma.SortOrderInput | Prisma.SortOrder
+  bodyType?: Prisma.SortOrderInput | Prisma.SortOrder
   location?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -327,7 +364,10 @@ export type UserScalarWhereWithAggregatesInput = {
   isOnboarded?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   age?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   gender?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
-  stylePreference?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  stylePreferences?: Prisma.StringNullableListFilter<"User">
+  weight?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
+  height?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
+  bodyType?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   location?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -341,7 +381,10 @@ export type UserCreateInput = {
   isOnboarded?: boolean
   age?: number | null
   gender?: string | null
-  stylePreference?: string | null
+  stylePreferences?: Prisma.UserCreatestylePreferencesInput | string[]
+  weight?: number | null
+  height?: number | null
+  bodyType?: string | null
   location?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -355,7 +398,10 @@ export type UserUncheckedCreateInput = {
   isOnboarded?: boolean
   age?: number | null
   gender?: string | null
-  stylePreference?: string | null
+  stylePreferences?: Prisma.UserCreatestylePreferencesInput | string[]
+  weight?: number | null
+  height?: number | null
+  bodyType?: string | null
   location?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -369,7 +415,10 @@ export type UserUpdateInput = {
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stylePreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stylePreferences?: Prisma.UserUpdatestylePreferencesInput | string[]
+  weight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bodyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -383,7 +432,10 @@ export type UserUncheckedUpdateInput = {
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stylePreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stylePreferences?: Prisma.UserUpdatestylePreferencesInput | string[]
+  weight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bodyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -397,7 +449,10 @@ export type UserCreateManyInput = {
   isOnboarded?: boolean
   age?: number | null
   gender?: string | null
-  stylePreference?: string | null
+  stylePreferences?: Prisma.UserCreatestylePreferencesInput | string[]
+  weight?: number | null
+  height?: number | null
+  bodyType?: string | null
   location?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -411,7 +466,10 @@ export type UserUpdateManyMutationInput = {
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stylePreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stylePreferences?: Prisma.UserUpdatestylePreferencesInput | string[]
+  weight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bodyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -425,10 +483,21 @@ export type UserUncheckedUpdateManyInput = {
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stylePreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stylePreferences?: Prisma.UserUpdatestylePreferencesInput | string[]
+  weight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bodyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StringNullableListFilter<$PrismaModel = never> = {
+  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
+  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
+  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -439,7 +508,10 @@ export type UserCountOrderByAggregateInput = {
   isOnboarded?: Prisma.SortOrder
   age?: Prisma.SortOrder
   gender?: Prisma.SortOrder
-  stylePreference?: Prisma.SortOrder
+  stylePreferences?: Prisma.SortOrder
+  weight?: Prisma.SortOrder
+  height?: Prisma.SortOrder
+  bodyType?: Prisma.SortOrder
   location?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -447,6 +519,8 @@ export type UserCountOrderByAggregateInput = {
 
 export type UserAvgOrderByAggregateInput = {
   age?: Prisma.SortOrder
+  weight?: Prisma.SortOrder
+  height?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -457,7 +531,9 @@ export type UserMaxOrderByAggregateInput = {
   isOnboarded?: Prisma.SortOrder
   age?: Prisma.SortOrder
   gender?: Prisma.SortOrder
-  stylePreference?: Prisma.SortOrder
+  weight?: Prisma.SortOrder
+  height?: Prisma.SortOrder
+  bodyType?: Prisma.SortOrder
   location?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -471,7 +547,9 @@ export type UserMinOrderByAggregateInput = {
   isOnboarded?: Prisma.SortOrder
   age?: Prisma.SortOrder
   gender?: Prisma.SortOrder
-  stylePreference?: Prisma.SortOrder
+  weight?: Prisma.SortOrder
+  height?: Prisma.SortOrder
+  bodyType?: Prisma.SortOrder
   location?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -479,6 +557,12 @@ export type UserMinOrderByAggregateInput = {
 
 export type UserSumOrderByAggregateInput = {
   age?: Prisma.SortOrder
+  weight?: Prisma.SortOrder
+  height?: Prisma.SortOrder
+}
+
+export type UserCreatestylePreferencesInput = {
+  set: string[]
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -501,6 +585,11 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type UserUpdatestylePreferencesInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
@@ -515,7 +604,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   isOnboarded?: boolean
   age?: boolean
   gender?: boolean
-  stylePreference?: boolean
+  stylePreferences?: boolean
+  weight?: boolean
+  height?: boolean
+  bodyType?: boolean
   location?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -529,7 +621,10 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   isOnboarded?: boolean
   age?: boolean
   gender?: boolean
-  stylePreference?: boolean
+  stylePreferences?: boolean
+  weight?: boolean
+  height?: boolean
+  bodyType?: boolean
   location?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -543,7 +638,10 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   isOnboarded?: boolean
   age?: boolean
   gender?: boolean
-  stylePreference?: boolean
+  stylePreferences?: boolean
+  weight?: boolean
+  height?: boolean
+  bodyType?: boolean
   location?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -557,13 +655,16 @@ export type UserSelectScalar = {
   isOnboarded?: boolean
   age?: boolean
   gender?: boolean
-  stylePreference?: boolean
+  stylePreferences?: boolean
+  weight?: boolean
+  height?: boolean
+  bodyType?: boolean
   location?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "name" | "isOnboarded" | "age" | "gender" | "stylePreference" | "location" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "name" | "isOnboarded" | "age" | "gender" | "stylePreferences" | "weight" | "height" | "bodyType" | "location" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
@@ -576,7 +677,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     isOnboarded: boolean
     age: number | null
     gender: string | null
-    stylePreference: string | null
+    stylePreferences: string[]
+    weight: number | null
+    height: number | null
+    bodyType: string | null
     location: string | null
     createdAt: Date
     updatedAt: Date
@@ -1010,7 +1114,10 @@ export interface UserFieldRefs {
   readonly isOnboarded: Prisma.FieldRef<"User", 'Boolean'>
   readonly age: Prisma.FieldRef<"User", 'Int'>
   readonly gender: Prisma.FieldRef<"User", 'String'>
-  readonly stylePreference: Prisma.FieldRef<"User", 'String'>
+  readonly stylePreferences: Prisma.FieldRef<"User", 'String[]'>
+  readonly weight: Prisma.FieldRef<"User", 'Int'>
+  readonly height: Prisma.FieldRef<"User", 'Int'>
+  readonly bodyType: Prisma.FieldRef<"User", 'String'>
   readonly location: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
