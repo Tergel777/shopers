@@ -128,6 +128,7 @@ export default function Home() {
           <div className="flex space-x-1 overflow-x-auto">
             {[
               { id: "dashboard", name: "Dashboard", icon: "🏠" },
+              { id: "profile", name: "Profile", icon: "👤" },
               { id: "situations", name: "Situations", icon: "🎯" },
               { id: "colors", name: "Colors", icon: "🎨" },
               { id: "outfits", name: "Outfits", icon: "👕" },
@@ -155,6 +156,101 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Profile View */}
+        {activeTab === "profile" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <h2 className="text-3xl font-bold text-amber-900 mb-4">
+                Your Profile 👤
+              </h2>
+              <p className="text-gray-600 text-lg mb-6">
+                Manage your personal information and style preferences
+              </p>
+
+              {/* Profile Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-200 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-amber-900 mb-4">Basic Information</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">Name:</span>
+                      <span className="font-semibold text-amber-900">{user.name || "Not set"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">Email:</span>
+                      <span className="font-semibold text-amber-900">{user.email}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">Age:</span>
+                      <span className="font-semibold text-amber-900">{user.age || "Not set"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-200 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-amber-900 mb-4">Style Preferences</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">Gender:</span>
+                      <span className="font-semibold text-amber-900 capitalize">{user.gender || "Not set"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">Style:</span>
+                      <span className="font-semibold text-amber-900 capitalize">{user.stylePreference || "Not set"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">Location:</span>
+                      <span className="font-semibold text-amber-900">{user.location || "Not set"}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Profile Completion */}
+              <div className="bg-amber-50 p-6 rounded-xl border-2 border-amber-200 mb-6">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-lg font-semibold text-amber-900">Profile Completion</span>
+                  <span className="text-lg font-bold text-amber-900">
+                    {(() => {
+                      let completed = 1; // email is always there
+                      if (user.name) completed++;
+                      if (user.age) completed++;
+                      if (user.gender) completed++;
+                      if (user.stylePreference) completed++;
+                      if (user.location) completed++;
+                      return Math.round((completed / 6) * 100);
+                    })()}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
+                  <div
+                    className="bg-amber-900 h-4 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${(() => {
+                        let completed = 1;
+                        if (user.name) completed++;
+                        if (user.age) completed++;
+                        if (user.gender) completed++;
+                        if (user.stylePreference) completed++;
+                        if (user.location) completed++;
+                        return (completed / 6) * 100;
+                      })()}%`
+                    }}
+                  />
+                </div>
+                <div className="text-center">
+                  <button
+                    onClick={() => router.push("/profile")}
+                    className="bg-amber-900 text-white px-8 py-3 rounded-lg hover:bg-amber-800 transition font-semibold"
+                  >
+                    View Full Profile & Edit Details
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Dashboard View */}
         {activeTab === "dashboard" && (
           <div className="space-y-6">
