@@ -1,12 +1,14 @@
   @import "tailwindcss";
 
 :root {
-  --background: #FAF0E6;
-  --foreground: #654321;
-  --brown-primary: #8B4513;
-  --brown-secondary: #A0522D;
-  --cream: #F5F5DC;
-  --white: #FFFFFF;
+  --background: #f0f0f0;
+  --foreground: #000000;
+  --neumorphism-light: #ffffff;
+  --neumorphism-dark: #d1d1d1;
+  --neumorphism-shadow-light: rgba(255, 255, 255, 0.8);
+  --neumorphism-shadow-dark: rgba(0, 0, 0, 0.1);
+  --neumorphism-inset-shadow-light: rgba(255, 255, 255, 0.5);
+  --neumorphism-inset-shadow-dark: rgba(0, 0, 0, 0.05);
 }
 
 @theme inline {
@@ -18,8 +20,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #2C1810;
-    --foreground: #F5DEB3;
+    --background: #e0e0e0;
+    --foreground: #000000;
   }
 }
 
@@ -35,24 +37,104 @@ body {
 
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F5DEB3;
+  background: #f0f0f0;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #8B4513;
-  border-radius: 5px;
+  background: #cccccc;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #654321;
+  background: #aaaaaa;
 }
 
 /* Smooth transitions */
 * {
   transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Neumorphism Styles */
+.neumorphism {
+  background: var(--neumorphism-light);
+  box-shadow:
+    8px 8px 16px var(--neumorphism-shadow-dark),
+    -8px -8px 16px var(--neumorphism-shadow-light);
+  border-radius: 12px;
+}
+
+.neumorphism-inset {
+  background: var(--neumorphism-light);
+  box-shadow:
+    inset 8px 8px 16px var(--neumorphism-inset-shadow-dark),
+    inset -8px -8px 16px var(--neumorphism-inset-shadow-light);
+  border-radius: 12px;
+}
+
+.neumorphism-pressed {
+  background: var(--neumorphism-light);
+  box-shadow:
+    inset 4px 4px 8px var(--neumorphism-inset-shadow-dark),
+    inset -4px -4px 8px var(--neumorphism-inset-shadow-light);
+  border-radius: 12px;
+}
+
+.neumorphism-flat {
+  background: var(--neumorphism-light);
+  box-shadow: none;
+  border-radius: 12px;
+}
+
+/* Neumorphism Button Styles */
+.neumorphism-btn {
+  background: var(--neumorphism-light);
+  box-shadow:
+    4px 4px 8px var(--neumorphism-shadow-dark),
+    -4px -4px 8px var(--neumorphism-shadow-light);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  color: var(--foreground);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.neumorphism-btn:hover {
+  box-shadow:
+    6px 6px 12px var(--neumorphism-shadow-dark),
+    -6px -6px 12px var(--neumorphism-shadow-light);
+  transform: translateY(-2px);
+}
+
+.neumorphism-btn:active {
+  box-shadow:
+    inset 2px 2px 4px var(--neumorphism-shadow-dark),
+    inset -2px -2px 4px var(--neumorphism-inset-shadow-light);
+  transform: translateY(0);
+}
+
+/* Neumorphism Input Styles */
+.neumorphism-input {
+  background: var(--neumorphism-light);
+  box-shadow:
+    inset 4px 4px 8px var(--neumorphism-inset-shadow-dark),
+    inset -4px -4px 8px var(--neumorphism-inset-shadow-light);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--foreground);
+  font-size: 16px;
+}
+
+.neumorphism-input:focus {
+  outline: none;
+  box-shadow:
+    inset 6px 6px 12px var(--neumorphism-inset-shadow-dark),
+    inset -6px -6px 12px var(--neumorphism-inset-shadow-light);
 }
