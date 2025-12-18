@@ -13,6 +13,7 @@
     "@prisma/client": "^7.1.0",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.3",
+    "groq-sdk": "^0.37.0",
     "next": "16.0.8",
     "react": "19.2.1",
     "react-dom": "19.2.1"

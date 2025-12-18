@@ -12,6 +12,9 @@ export default function Home() {
   const [giveAwayItems, setGiveAwayItems] = useState<any[]>([]);
   const [timeView, setTimeView] = useState("weekly");
   const [selectedSong, setSelectedSong] = useState("");
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [isLoadingChat, setIsLoadingChat] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -38,9 +41,66 @@ export default function Home() {
     }
   }, [router]);
 
+  // Load chat history when chat tab is active
+  useEffect(() => {
+    if (activeTab === "chat" && user) {
+      fetch(`/api/chat?userId=${user.id}`)
+        .then(res => res.json())
+        .then(messages => {
+          const formattedMessages = messages.map((msg: any) => ({
+            role: msg.role === "model" ? "assistant" : msg.role,
+            content: msg.content,
+            timestamp: new Date(msg.createdAt),
+          }));
+          setChatMessages(formattedMessages);
+        })
+        .catch(error => {
+          console.error("Failed to load chat history:", error);
+        });
+    }
+  }, [activeTab, user]);
+
   const handleLogout = () => {
     localStorage.removeItem("currentUser");
     router.push("/signin");
+  };
+
+  const handleSendMessage = async () => {
+    if (!chatInput.trim() || isLoadingChat) return;
+
+    const userMessage = { role: "user", content: chatInput, timestamp: new Date() };
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInput("");
+    setIsLoadingChat(true);
+
+    try {
+      const response = await fetch(`/api/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: user.id, content: userMessage.content }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const aiMessage = { role: "assistant", content: data.message, timestamp: new Date() };
+        setChatMessages(prev => [...prev, aiMessage]);
+      } else {
+        console.error("Failed to send message");
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
+      setIsLoadingChat(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
   };
 
   const situations = [
@@ -144,6 +204,7 @@ export default function Home() {
             {[
               { id: "dashboard", name: "Dashboard", icon: "🏠" },
               { id: "profile", name: "Profile", icon: "👤" },
+              { id: "chat", name: "AI Chat", icon: "🤖" },
               { id: "situations", name: "Situations", icon: "🎯" },
               { id: "colors", name: "Colors", icon: "🎨" },
               { id: "outfits", name: "Outfits", icon: "👕" },
@@ -281,6 +342,84 @@ export default function Home() {
                     View Full Profile & Edit Details
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Chat Tab */}
+        {activeTab === "chat" && (
+          <div className="space-y-6">
+            <div className="neumorphism p-8">
+              <h2 className="text-3xl font-bold text-black mb-4">
+                AI Fashion Assistant 🤖
+              </h2>
+              <p className="text-gray-700 mb-6">
+                Chat with your personal AI stylist for fashion advice, outfit recommendations, and style tips!
+              </p>
+
+              {/* Chat Messages */}
+              <div className="h-96 overflow-y-auto mb-4 neumorphism-inset p-4">
+                {chatMessages.length === 0 ? (
+                  <div className="text-center text-gray-500 py-8">
+                    <div className="text-4xl mb-4">💬</div>
+                    <p>Start a conversation with your AI stylist!</p>
+                    <p className="text-sm">Ask about outfit recommendations, color combinations, or fashion tips.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {chatMessages.map((message, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                            message.role === "user"
+                              ? "neumorphism-pressed text-black"
+                              : "neumorphism text-gray-800"
+                          }`}
+                        >
+                          <p className="text-sm">{message.content}</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {message.timestamp.toLocaleTimeString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    {isLoadingChat && (
+                      <div className="flex justify-start">
+                        <div className="neumorphism px-4 py-2 rounded-lg">
+                          <div className="flex space-x-1">
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Chat Input */}
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Ask me about fashion, outfits, colors..."
+                  className="flex-1 neumorphism-input px-4 py-2"
+                  disabled={isLoadingChat}
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={isLoadingChat || !chatInput.trim()}
+                  className="neumorphism-btn px-6 py-2 disabled:opacity-50"
+                >
+                  Send
+                </button>
               </div>
             </div>
           </div>

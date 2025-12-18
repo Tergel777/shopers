@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated"
+  output   = "../app/generated"
 }
 
 datasource db {
@@ -14,11 +14,11 @@ datasource db {
 }
 
 model User {
-  id               String   @id @default(cuid())
-  email            String   @unique
+  id               String    @id @default(cuid())
+  email            String    @unique
   password         String
   name             String?
-  isOnboarded      Boolean  @default(false)
+  isOnboarded      Boolean   @default(false)
   age              Int?
   gender           String?
   stylePreferences String[]
@@ -26,6 +26,16 @@ model User {
   height           Int?
   bodyType         String?
   location         String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  messages         Message[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Message {
+  id       String   @id @default(cuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content  String
+  role     String   // "user" or "model"
+  createdAt DateTime @default(now())
 }
