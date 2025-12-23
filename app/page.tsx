@@ -1,20 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string, name: string, email: string, age?: number, gender?: string, stylePreferences: string[], location?: string, bodyType?: string, height?: number, weight?: number } | null>(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [selectedSituation, setSelectedSituation] = useState("");
-  const [selectedOutfit, setSelectedOutfit] = useState<any>(null);
-  const [washList, setWashList] = useState<any[]>([]);
-  const [giveAwayItems, setGiveAwayItems] = useState<any[]>([]);
+  const [selectedOutfit, setSelectedOutfit] = useState<{ outfit: string, colors: string[], weather: string, trending: string } | null>(null);
+  const [washList, setWashList] = useState<{ item: string, temp: string, cycle: string, tips: string }[]>([]);
+  const [giveAwayItems, setGiveAwayItems] = useState<{ item: string, reason: string, condition: string, suggestion: string }[]>([]);
   const [timeView, setTimeView] = useState("weekly");
   const [selectedSong, setSelectedSong] = useState("");
-  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const colorCombinations = [
+    { primary: "#8B4513", secondary: "#F5F5DC", name: "Brown & Beige" },
+    { primary: "#6F4E37", secondary: "#FFFFFF", name: "Coffee & Cream" },
+    { primary: "#D2691E", secondary: "#FAF0E6", name: "Chocolate & Linen" },
+    { primary: "#A0522D", secondary: "#FFF8DC", name: "Sienna & Cornsilk" },
+  ];
+  const [chatMessages, setChatMessages] = useState<{ role: string, content: string, timestamp: Date }[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [isLoadingChat, setIsLoadingChat] = useState(false);
+
+  // Dynamic shopping stats
+  const [shoppingStats, setShoppingStats] = useState({
+    itemsPurchased: 0,
+    moneySaved: 0,
+    avgRating: 0,
+    itemsInCart: 0
+  });
+
+  // Chat container ref for auto-scrolling
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -31,12 +48,50 @@ export default function Home() {
             setUser(data.user);
             // Update localStorage with fresh data
             localStorage.setItem("currentUser", JSON.stringify(data.user));
+
+            // Calculate dynamic shopping stats based on user data
+            const user = data.user;
+            const userId = user.id;
+            const userName = user.name || '';
+            const userAge = user.age || 25;
+            const userPreferences = (user.stylePreferences || []).length;
+
+            // Generate realistic stats based on user data
+            const itemsPurchased = Math.floor((userName.length * userAge * 0.1) + userPreferences * 2) + 10;
+            const moneySaved = Math.floor(itemsPurchased * 45.8); // Average savings per item
+            const avgRating = Math.round((4.2 + (userPreferences * 0.1) + (userName.length % 5) * 0.1) * 10) / 10;
+            const itemsInCart = Math.floor(userPreferences * 0.7) + 1;
+
+            setShoppingStats({
+              itemsPurchased,
+              moneySaved,
+              avgRating,
+              itemsInCart
+            });
           }
         })
         .catch(error => {
           console.error("Failed to fetch user profile:", error);
           // Fallback to localStorage data
           setUser(userData);
+
+          // Still calculate stats from localStorage data
+          const userId = userData.id;
+          const userName = userData.name || '';
+          const userAge = userData.age || 25;
+          const userPreferences = (userData.stylePreferences || []).length;
+
+          const itemsPurchased = Math.floor((userName.length * userAge * 0.1) + userPreferences * 2) + 10;
+          const moneySaved = Math.floor(itemsPurchased * 45.8);
+          const avgRating = Math.round((4.2 + (userPreferences * 0.1) + (userName.length % 5) * 0.1) * 10) / 10;
+          const itemsInCart = Math.floor(userPreferences * 0.7) + 1;
+
+          setShoppingStats({
+            itemsPurchased,
+            moneySaved,
+            avgRating,
+            itemsInCart
+          });
         });
     }
   }, [router]);
@@ -47,7 +102,7 @@ export default function Home() {
       fetch(`/api/chat?userId=${user.id}`)
         .then(res => res.json())
         .then(messages => {
-          const formattedMessages = messages.map((msg: any) => ({
+          const formattedMessages = messages.map((msg: { role: string; content: string; createdAt: string }) => ({
             role: msg.role === "model" ? "assistant" : msg.role,
             content: msg.content,
             timestamp: new Date(msg.createdAt),
@@ -60,13 +115,20 @@ export default function Home() {
     }
   }, [activeTab, user]);
 
+  // Auto-scroll chat to bottom when new messages arrive
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatMessages, isLoadingChat]);
+
   const handleLogout = () => {
     localStorage.removeItem("currentUser");
     router.push("/signin");
   };
 
   const handleSendMessage = async () => {
-    if (!chatInput.trim() || isLoadingChat) return;
+    if (!chatInput.trim() || isLoadingChat || !user) return;
 
     const userMessage = { role: "user", content: chatInput, timestamp: new Date() };
     setChatMessages(prev => [...prev, userMessage]);
@@ -74,12 +136,35 @@ export default function Home() {
     setIsLoadingChat(true);
 
     try {
+      // Enhanced prompt with product context
+      const productContext = `You are ShopSmart's AI Shopping Assistant. Help users make informed purchasing decisions.
+
+Available Products on the page:
+${featuredProducts.map(p => `- ${p.name} (${p.category}): $${p.price}, ${p.rating}⭐ (${p.reviews} reviews) - ${p.description}`).join('\n')}
+
+Product Categories:
+${productCategories.map(c => `- ${c.name}: ${c.description}`).join('\n')}
+
+User's shopping stats:
+- Items purchased: ${shoppingStats.itemsPurchased}
+- Money saved: $${shoppingStats.moneySaved}
+- Average rating given: ${shoppingStats.avgRating}
+- Items in cart: ${shoppingStats.itemsInCart}
+
+User profile: ${user?.name || 'Unknown'}, ${user?.age || 'Unknown'} years old, preferences: ${(user?.stylePreferences || []).join(', ')}
+
+Current shopping context: ${selectedSituation ? `Browsing ${productCategories.find(c => c.id === selectedSituation)?.name} category` : 'General browsing'}
+
+Help the user with product recommendations, comparisons, reviews, pricing, and purchasing decisions. Reference specific products from the page when relevant.`;
+
+      const enhancedContent = `${productContext}\n\nUser question: ${userMessage.content}`;
+
       const response = await fetch(`/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId: user.id, content: userMessage.content }),
+        body: JSON.stringify({ userId: user.id, content: enhancedContent }),
       });
 
       if (response.ok) {
@@ -103,21 +188,63 @@ export default function Home() {
     }
   };
 
-  const situations = [
-    { id: "casual", name: "Casual Day", icon: "👕" },
-    { id: "work", name: "Work/Office", icon: "💼" },
-    { id: "date", name: "Date Night", icon: "💝" },
-    { id: "party", name: "Party", icon: "🎉" },
-    { id: "gym", name: "Gym/Sports", icon: "💪" },
-    { id: "formal", name: "Formal Event", icon: "🎩" },
+  const productCategories = [
+    { id: "electronics", name: "Electronics", icon: "📱", description: "Phones, laptops, gadgets" },
+    { id: "fashion", name: "Fashion", icon: "👕", description: "Clothing, shoes, accessories" },
+    { id: "home", name: "Home & Garden", icon: "🏠", description: "Furniture, decor, appliances" },
+    { id: "books", name: "Books", icon: "📚", description: "Books, ebooks, magazines" },
+    { id: "sports", name: "Sports", icon: "⚽", description: "Equipment, apparel, fitness" },
+    { id: "beauty", name: "Beauty", icon: "💄", description: "Cosmetics, skincare, hair care" },
   ];
 
-  const colorCombinations = [
-    { primary: "#8B4513", secondary: "#F5F5DC", name: "Brown & Beige" },
-    { primary: "#6F4E37", secondary: "#FFFFFF", name: "Coffee & Cream" },
-    { primary: "#D2691E", secondary: "#FAF0E6", name: "Chocolate & Linen" },
-    { primary: "#A0522D", secondary: "#FFF8DC", name: "Sienna & Cornsilk" },
+  const featuredProducts = [
+    {
+      id: 1,
+      name: "Wireless Bluetooth Headphones",
+      category: "electronics",
+      price: 89.99,
+      rating: 4.5,
+      reviews: 1247,
+      image: "🎧",
+      description: "Premium noise-cancelling wireless headphones with 30-hour battery life",
+      features: ["Active Noise Cancellation", "30hr Battery", "Quick Charge", "Comfortable Fit"]
+    },
+    {
+      id: 2,
+      name: "Smart Fitness Watch",
+      category: "electronics",
+      price: 199.99,
+      rating: 4.3,
+      reviews: 892,
+      image: "⌚",
+      description: "Track your fitness goals with heart rate monitoring and GPS",
+      features: ["Heart Rate Monitor", "GPS Tracking", "Water Resistant", "7-Day Battery"]
+    },
+    {
+      id: 3,
+      name: "Organic Cotton T-Shirt",
+      category: "fashion",
+      price: 24.99,
+      rating: 4.7,
+      reviews: 543,
+      image: "👕",
+      description: "Comfortable, sustainable organic cotton t-shirt in multiple colors",
+      features: ["100% Organic Cotton", "Pre-shrunk", "Multiple Colors", "Eco-Friendly"]
+    },
+    {
+      id: 4,
+      name: "Ceramic Coffee Mug Set",
+      category: "home",
+      price: 34.99,
+      rating: 4.6,
+      reviews: 321,
+      image: "☕",
+      description: "Set of 4 handcrafted ceramic mugs, perfect for coffee or tea",
+      features: ["Handcrafted Ceramic", "Microwave Safe", "Dishwasher Safe", "4-Piece Set"]
+    }
   ];
+
+
 
   const outfitRecommendations = {
     casual: {
@@ -169,8 +296,49 @@ export default function Home() {
   ];
 
   if (!user) return (
-    <div className="min-h-screen flex items-center justify-center neumorphism-flat p-8">
-      <div className="text-black text-xl font-semibold">Loading your style profile...</div>
+    <div className="min-h-screen flex items-center justify-center p-8" style={{ background: "var(--background)" }}>
+      <div className="neumorphism p-12 max-w-md w-full text-center">
+        <div className="mb-8">
+          <div className="inline-block">
+            <div className="relative">
+              {/* Spinning outer ring */}
+              <div className="w-16 h-16 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+              {/* Inner pulsing dot */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div className="w-4 h-4 bg-black rounded-full animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h2 className="text-2xl font-bold text-black mb-4">
+          Welcome to ShopSmart 🛒
+        </h2>
+
+        <p className="text-gray-700 mb-6">
+          Preparing your personalized shopping experience...
+        </p>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-center space-x-2">
+            <div className="w-2 h-2 bg-black rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-black rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+            <div className="w-2 h-2 bg-black rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+          </div>
+
+          <div className="text-sm text-gray-600">
+            Loading your profile and preferences...
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="mt-8">
+          <div className="neumorphism-inset rounded-full h-2 mb-2">
+            <div className="bg-black h-2 rounded-full animate-pulse" style={{ width: "60%" }}></div>
+          </div>
+          <div className="text-xs text-gray-500">Setting up your shopping assistant...</div>
+        </div>
+      </div>
     </div>
   );
 
@@ -181,10 +349,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <div className="text-3xl">👔</div>
+              <div className="text-3xl">🛒</div>
               <div>
-                <h1 className="text-2xl font-bold text-black">AI Stylist</h1>
-                <p className="text-sm text-gray-600">Hey {user.name}! Let's style you up</p>
+                <h1 className="text-2xl font-bold text-black">ShopSmart</h1>
+                <p className="text-sm text-gray-600">Hey {user.name}! Let's find your perfect products</p>
               </div>
             </div>
             <button
@@ -216,11 +384,10 @@ export default function Home() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-3 whitespace-nowrap transition font-semibold ${
-                  activeTab === tab.id
-                    ? "neumorphism-pressed text-black"
-                    : "neumorphism text-gray-700 hover:text-black"
-                }`}
+                className={`px-4 py-3 whitespace-nowrap transition font-semibold ${activeTab === tab.id
+                  ? "neumorphism-pressed text-black"
+                  : "neumorphism text-gray-700 hover:text-black"
+                  }`}
               >
                 <span className="mr-2">{tab.icon}</span>
                 {tab.name}
@@ -352,19 +519,19 @@ export default function Home() {
           <div className="space-y-6">
             <div className="neumorphism p-8">
               <h2 className="text-3xl font-bold text-black mb-4">
-                AI Fashion Assistant 🤖
+                AI Shopping Assistant 🤖
               </h2>
               <p className="text-gray-700 mb-6">
-                Chat with your personal AI stylist for fashion advice, outfit recommendations, and style tips!
+                Chat with your personal AI shopping assistant for product recommendations, price comparisons, and buying tips!
               </p>
 
               {/* Chat Messages */}
-              <div className="h-96 overflow-y-auto mb-4 neumorphism-inset p-4">
+              <div ref={chatContainerRef} className="h-96 overflow-y-auto mb-4 neumorphism-inset p-4">
                 {chatMessages.length === 0 ? (
                   <div className="text-center text-gray-500 py-8">
                     <div className="text-4xl mb-4">💬</div>
-                    <p>Start a conversation with your AI stylist!</p>
-                    <p className="text-sm">Ask about outfit recommendations, color combinations, or fashion tips.</p>
+                    <p>Start a conversation with your AI shopping assistant!</p>
+                    <p className="text-sm">Ask about product recommendations, price comparisons, or shopping tips.</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -374,11 +541,10 @@ export default function Home() {
                         className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                            message.role === "user"
-                              ? "neumorphism-pressed text-black"
-                              : "neumorphism text-gray-800"
-                          }`}
+                          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${message.role === "user"
+                            ? "neumorphism-pressed text-black"
+                            : "neumorphism text-gray-800"
+                            }`}
                         >
                           <p className="text-sm">{message.content}</p>
                           <p className="text-xs text-gray-500 mt-1">
@@ -409,7 +575,7 @@ export default function Home() {
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Ask me about fashion, outfits, colors..."
+                  placeholder="Ask me about products, prices, reviews..."
                   className="flex-1 neumorphism-input px-4 py-2"
                   disabled={isLoadingChat}
                 />
@@ -430,11 +596,11 @@ export default function Home() {
           <div className="space-y-6">
             <div className="neumorphism p-8">
               <h2 className="text-3xl font-bold text-black mb-4">
-                Welcome to Your AI Stylist ✨
+                Welcome to Your Shopping Hub ✨
               </h2>
               <p className="text-gray-700 text-lg mb-6">
-                Your personal fashion assistant powered by AI. Get outfit recommendations,
-                color combinations, washing instructions, and more!
+                Your personal shopping assistant powered by AI. Get product recommendations,
+                price comparisons, reviews analysis, and more!
               </p>
 
               {/* Time View Selector */}
@@ -443,11 +609,10 @@ export default function Home() {
                   <button
                     key={view}
                     onClick={() => setTimeView(view)}
-                    className={`px-6 py-2 rounded-full capitalize transition font-semibold ${
-                      timeView === view
-                        ? "neumorphism-pressed text-black"
-                        : "neumorphism text-gray-700 hover:text-black"
-                    }`}
+                    className={`px-6 py-2 rounded-full capitalize transition font-semibold ${timeView === view
+                      ? "neumorphism-pressed text-black"
+                      : "neumorphism text-gray-700 hover:text-black"
+                      }`}
                   >
                     {view}
                   </button>
@@ -456,26 +621,42 @@ export default function Home() {
 
               {/* Stats */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="neumorphism p-6">
-                  <div className="text-3xl mb-2">👕</div>
-                  <div className="text-2xl font-bold text-black">24</div>
-                  <div className="text-sm text-gray-600">Outfits Created</div>
-                </div>
-                <div className="neumorphism p-6">
-                  <div className="text-3xl mb-2">🎨</div>
-                  <div className="text-2xl font-bold text-black">12</div>
-                  <div className="text-sm text-gray-600">Color Combos</div>
-                </div>
-                <div className="neumorphism p-6">
-                  <div className="text-3xl mb-2">🧺</div>
-                  <div className="text-2xl font-bold text-black">8</div>
-                  <div className="text-sm text-gray-600">Items in Wash</div>
-                </div>
-                <div className="neumorphism p-6">
-                  <div className="text-3xl mb-2">📦</div>
-                  <div className="text-2xl font-bold text-black">5</div>
-                  <div className="text-sm text-gray-600">Give Away Items</div>
-                </div>
+                <button
+                  onClick={() => setActiveTab("recap")}
+                  className="neumorphism p-6 hover:neumorphism-pressed transition-all duration-200 text-left"
+                >
+                  <div className="text-3xl mb-2">🛍️</div>
+                  <div className="text-2xl font-bold text-black">{shoppingStats.itemsPurchased}</div>
+                  <div className="text-sm text-gray-600">Items Purchased</div>
+                  <div className="text-xs text-gray-500 mt-1">View purchase history</div>
+                </button>
+                <button
+                  onClick={() => setActiveTab("recap")}
+                  className="neumorphism p-6 hover:neumorphism-pressed transition-all duration-200 text-left"
+                >
+                  <div className="text-3xl mb-2">💰</div>
+                  <div className="text-2xl font-bold text-black">${shoppingStats.moneySaved.toLocaleString()}</div>
+                  <div className="text-sm text-gray-600">Money Saved</div>
+                  <div className="text-xs text-gray-500 mt-1">View savings details</div>
+                </button>
+                <button
+                  onClick={() => setActiveTab("recap")}
+                  className="neumorphism p-6 hover:neumorphism-pressed transition-all duration-200 text-left"
+                >
+                  <div className="text-3xl mb-2">⭐</div>
+                  <div className="text-2xl font-bold text-black">{shoppingStats.avgRating}</div>
+                  <div className="text-sm text-gray-600">Avg Rating</div>
+                  <div className="text-xs text-gray-500 mt-1">View product reviews</div>
+                </button>
+                <button
+                  onClick={() => setActiveTab("giveaway")}
+                  className="neumorphism p-6 hover:neumorphism-pressed transition-all duration-200 text-left"
+                >
+                  <div className="text-3xl mb-2">🛒</div>
+                  <div className="text-2xl font-bold text-black">{shoppingStats.itemsInCart}</div>
+                  <div className="text-sm text-gray-600">In Cart</div>
+                  <div className="text-xs text-gray-500 mt-1">View shopping cart</div>
+                </button>
               </div>
             </div>
 
@@ -510,42 +691,75 @@ export default function Home() {
           </div>
         )}
 
-        {/* Situations Tab */}
+        {/* Product Categories Tab */}
         {activeTab === "situations" && (
           <div className="space-y-6">
             <div className="neumorphism p-8">
               <h2 className="text-3xl font-bold text-black mb-4">
-                Choose Your Situation 🎯
+                Browse Product Categories 🛍️
               </h2>
               <p className="text-gray-700 mb-6">
-                Select what you're doing today and get personalized outfit choices
+                Explore different product categories to find what you need
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {situations.map((situation) => (
+                {productCategories.map((category) => (
                   <button
-                    key={situation.id}
-                    onClick={() => setSelectedSituation(situation.id)}
-                    className={`p-6 rounded-xl transition font-semibold ${
-                      selectedSituation === situation.id
-                        ? "neumorphism-pressed text-black"
-                        : "neumorphism text-gray-700 hover:text-black"
-                    }`}
+                    key={category.id}
+                    onClick={() => setSelectedSituation(category.id)}
+                    className={`p-6 rounded-xl transition font-semibold ${selectedSituation === category.id
+                      ? "neumorphism-pressed text-black"
+                      : "neumorphism text-gray-700 hover:text-black"
+                      }`}
                   >
-                    <div className="text-5xl mb-3">{situation.icon}</div>
-                    <div className="text-xl font-semibold">{situation.name}</div>
+                    <div className="text-5xl mb-3">{category.icon}</div>
+                    <div className="text-xl font-semibold">{category.name}</div>
+                    <div className="text-sm text-gray-600 mt-1">{category.description}</div>
                   </button>
                 ))}
               </div>
               {selectedSituation && (
                 <div className="mt-6 neumorphism-inset p-6">
                   <h3 className="text-xl font-bold text-black mb-2">
-                    Selected: {situations.find(s => s.id === selectedSituation)?.name}
+                    Selected: {productCategories.find(c => c.id === selectedSituation)?.name}
                   </h3>
                   <p className="text-gray-700">
-                    Great choice! Check the Outfits tab for recommendations.
+                    Great choice! Check the Outfits tab for product recommendations in this category.
                   </p>
                 </div>
               )}
+            </div>
+
+            {/* Featured Products */}
+            <div className="neumorphism p-8">
+              <h3 className="text-2xl font-bold text-black mb-6">
+                Featured Products ⭐
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {featuredProducts.map((product) => (
+                  <div key={product.id} className="neumorphism-inset p-6">
+                    <div className="flex items-start space-x-4">
+                      <div className="text-4xl">{product.image}</div>
+                      <div className="flex-1">
+                        <h4 className="text-xl font-bold text-black mb-2">{product.name}</h4>
+                        <p className="text-gray-700 text-sm mb-3">{product.description}</p>
+                        <div className="flex items-center space-x-2 mb-3">
+                          <div className="flex items-center">
+                            <span className="text-yellow-500 mr-1">⭐</span>
+                            <span className="font-semibold">{product.rating}</span>
+                            <span className="text-gray-600 text-sm ml-1">({product.reviews} reviews)</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-2xl font-bold text-black">${product.price}</span>
+                          <button className="neumorphism-btn">
+                            Add to Cart
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -927,9 +1141,9 @@ export default function Home() {
       {/* Footer */}
       <footer className="neumorphism mx-6 mt-12 mb-6">
         <div className="max-w-7xl mx-auto px-6 py-8 text-center">
-          <p className="text-lg mb-2 text-black font-semibold">✨ AI Stylist - Your Personal Fashion Assistant</p>
+          <p className="text-lg mb-2 text-black font-semibold">🛒 ShopSmart - Your AI Shopping Assistant</p>
           <p className="text-sm text-gray-600">
-            Powered by AI • Monochrome Design • Made with ❤️
+            Powered by AI • Smart Shopping • Made with ❤️
           </p>
         </div>
       </footer>

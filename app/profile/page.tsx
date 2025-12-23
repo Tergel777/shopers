@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Profile() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string, name: string, email: string, age?: number, gender?: string, stylePreferences: string[], location?: string, bodyType?: string, height?: number, weight?: number, isOnboarded?: boolean, createdAt?: string, updatedAt?: string } | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedUser, setEditedUser] = useState<any>({});
+  const [editedUser, setEditedUser] = useState<{ id?: string, name?: string, email?: string, age?: number, gender?: string, stylePreferences?: string[], location?: string, bodyType?: string, height?: number, weight?: number }>({});
   const styleOptions = ["casual", "sporty", "formal", "streetwear", "chic", "minimalist", "bohemian", "classic", "edgy"];
   const router = useRouter();
 
@@ -62,7 +62,7 @@ export default function Profile() {
   };
 
   const handleCancel = () => {
-    setEditedUser(user);
+    setEditedUser(user || {});
     setIsEditing(false);
   };
 

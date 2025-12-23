@@ -119,8 +119,9 @@ Be knowledgeable about current fashion trends, classic styles, and inclusive siz
     });
 
     return NextResponse.json({ message: aiResponse });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Groq API error:", error);
-    return NextResponse.json({ error: error.message || "Failed to generate response" }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : "Failed to generate response";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 };

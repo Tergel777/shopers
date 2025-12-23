@@ -4,17 +4,14 @@ import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 
-// @ts-ignore
 const pool = new Pool({
   connectionString:
     process.env.DATABASE_URL ||
     "postgresql://neondb_owner:npg_Af6WDHR3CqTO@ep-shy-mouse-a1rbddgm-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
 });
 
-// @ts-ignore
 const adapter = new PrismaPg(pool);
 
-// @ts-ignore
 const prisma = new PrismaClient({ adapter });
 
 export async function POST(request: NextRequest) {

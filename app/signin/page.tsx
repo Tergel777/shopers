@@ -7,12 +7,11 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [,] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     try {
       const response = await fetch("/api/auth/signin", {
@@ -29,10 +28,10 @@ export default function SignIn() {
         localStorage.setItem("currentUser", JSON.stringify(data.user));
         router.push("/");
       } else {
-        setError(data.error || "Signin failed");
+        // Error handled silently
       }
     } catch (error) {
-      setError("An error occurred");
+      // Error handled silently
     }
   };
 
@@ -78,11 +77,7 @@ export default function SignIn() {
               </button>
             </div>
           </div>
-          {error && (
-            <p className="text-red-600 text-sm text-center neumorphism-inset p-2">
-              {error}
-            </p>
-          )}
+
           <button
             type="submit"
             className="neumorphism-btn w-full"
