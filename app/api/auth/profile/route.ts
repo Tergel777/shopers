@@ -1,17 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/src/generated/client";
-import { Pool } from "pg";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { prisma } from "@/lib/prisma";
 
-const pool = new Pool({
-  connectionString:
-    process.env.DATABASE_URL ||
-    "postgresql://neondb_owner:npg_Af6WDHR3CqTO@ep-shy-mouse-a1rbddgm-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
-});
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
 
-const adapter = new PrismaPg(pool);
+    if (!id) {
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 }
+      );
+    }
 
-const prisma = new PrismaClient({ adapter });
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        isOnboarded: user.isOnboarded,
+        age: user.age,
+        gender: user.gender,
+        stylePreferences: user.stylePreferences,
+        weight: user.weight,
+        height: user.height,
+        bodyType: user.bodyType,
+        location: user.location,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error("Profile fetch error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function PUT(request: NextRequest) {
   try {
@@ -58,55 +95,6 @@ export async function PUT(request: NextRequest) {
     });
   } catch (error) {
     console.error("Profile update error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "User ID is required" },
-        { status: 400 }
-      );
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        isOnboarded: user.isOnboarded,
-        age: user.age,
-        gender: user.gender,
-        stylePreferences: user.stylePreferences,
-        weight: user.weight,
-        height: user.height,
-        bodyType: user.bodyType,
-        location: user.location,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      },
-    });
-  } catch (error) {
-    console.error("Profile fetch error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

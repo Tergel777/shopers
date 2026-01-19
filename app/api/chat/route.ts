@@ -9,6 +9,7 @@ const groq = new Groq({ apiKey: GROQ_API_KEY });
 export const GET = async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("userId");
+  const limit = parseInt(searchParams.get("limit") || "50");
 
   if (!userId) {
     return NextResponse.json({ error: "User ID is required" }, { status: 400 });
@@ -19,11 +20,13 @@ export const GET = async (req: NextRequest) => {
       userId,
     },
     orderBy: {
-      createdAt: "asc",
+      createdAt: "desc",
     },
+    take: limit,
   });
 
-  return NextResponse.json(chats);
+  // Return in ascending order
+  return NextResponse.json(chats.reverse());
 };
 
 export const POST = async (req: NextRequest) => {
@@ -68,7 +71,7 @@ Be knowledgeable about current fashion trends, classic styles, and inclusive siz
   ];
 
   // Add previous messages to history
-  messages.forEach((message) => {
+  messages.forEach((message: { role: string; content: string }) => {
     chatHistory.push({
       role: message.role === "model" ? "assistant" : (message.role as "user"),
       content: message.content,

@@ -81,8 +81,8 @@ export default function Profile() {
             <div className="flex items-center space-x-3">
               <div className="text-3xl">👤</div>
               <div>
-                <h1 className="text-2xl font-bold text-black">AI Stylist Profile</h1>
-                <p className="text-sm text-gray-600">Personalize your style recommendations</p>
+                <h1 className="text-2xl font-bold text-black">Stylist Profile</h1>
+                <p className="text-sm text-gray-600">Personalize your style preferences</p>
               </div>
             </div>
             <div className="flex space-x-3">
